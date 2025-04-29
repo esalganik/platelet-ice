@@ -12,7 +12,10 @@ F2(T_S>-2) = 9.0312*10^-2 + -1.6111*10^-2*T_S(T_S>-2).^1 + 1.2291*10^-4*T_S(T_S>
 rho_si_cox = 1./((F1 - rho_i.*S/1000.*F2)./(rho_i.*F1)); % Cox and Weeks (1983)
 vb_S_cw = rho_si_cox .* S ./ F1; vb_S_cw = vb_S_cw/1000; vb_S_cw(vb_S_cw > 0.5) = NaN; vb_S_cw(vb_S_cw < 0) = NaN; vb_S = vb_S_cw; % Cox and Weeks (1983)
 Sb = -1.2 - 21.8*T_S - 0.919*T_S.^2 - 0.0178*T_S.^3; % brine salinity for seawater (Assur, 1958)
+Sb_van = -18.7*T_S - 0.519*T_S.^2 - 0.00535*T_S.^3; % brine salinity for seawater (Vancopenolle, 2019, eq. 10)
 rho_w = 1000.3 + 0.78237 * Sb + 2.8008*10^-4 * Sb.^2; % seawater density (Schwerdtfeger, 1963) 
+rho_b = 1000.3 + 0.78237 * Sb_van + 2.8008*10^-4 * Sb_van.^2; % seawater density (Schwerdtfeger, 1963) 
+vb_S_van = ( 1 + (Sb_van./S - 1) .* rho_b./rho_i).^-1; % brine volume for gas-free ice without minerals (Vancopenolle, 2019, eq. 6)
 phi_v = (1 - S./Sb)./(1+S./Sb.*(rho_i./rho_w-1)); vb_S_notz = 1 - phi_v; vb_S_notz(vb_S_notz > 0.6) = NaN; vb_S_notz(vb_S_notz < 0) = NaN; % volume solid fraction (Notz, 2005)
 zrho = mean(zzrho,2) * hrho / zzrho(end,2) / 100;
 T_rho = interp1(zT * hT / zT(end),T,zrho*100,'linear','extrap');
@@ -31,7 +34,7 @@ F3_rho = rhoi_rho.*Srho/1000./(F1_rho-rhoi_rho.*Srho/1000.*F2_rho);
 vb_rho = vb_pr_rho .* F1_pr_rho ./ F1_rho / 1000; vb_rho(vb_rho > 0.6) = NaN; vb_rho(vb_rho < 0) = NaN;  % Brine volume for T_insitu, CW + LM
 vg = max(0,(1-(1-vg_pr).*(rhoi_rho./rhoi_pr).*(F3_pr.*F1_pr_rho./F3_rho./F1_rho)),'includenan'); % Gas volume for T_insitu, CW + LM
 rho_si = (-vg_pr+1).*rhoi_rho.*F1_rho./(F1_rho-rhoi_rho.*Srho/1000.*F2_rho); rho_si(isnan(vb_rho)) = NaN; rho_si(isnan(vb_rho)) = NaN; % density
-clearvars -except hS hT hrho dS dT drho zT zS zzS zzrho zrho T T_lab T_S S Srho rho rho_si vb_S vb_rho vg vg_pr t event
+clearvars -except hS hT hrho dS dT drho zT zS zzS zzrho zrho T T_lab T_S S Srho rho rho_si vb_S vb_rho vg vg_pr t event vb_S_van
 
 figure
 tile = tiledlayout(1,5); tile.TileSpacing = 'compact'; tile.Padding = 'none';
@@ -58,8 +61,8 @@ p = text(855,1.4,sprintf('%.0f ± %.0f',mean(rho_si),std(rho_si))); set(p,'Color
 p = text(855,1.5,sprintf('%.0f ± %.0f',mean(rho),std(rho))); set(p,'Color',c{2},'HorizontalAlignment','left','FontSize',8);
 
 nexttile
-plot(vb_S,zS,vb_rho,zrho);
-set(gca, 'YDir','reverse'); leg = legend('SAL','DEN','box','off'); set(leg,'FontSize',7,'Location','best'); leg.ItemTokenSize = [30*0.3,18*0.3];
+plot(vb_S,zS,vb_S_van,zS,vb_rho,zrho);
+set(gca, 'YDir','reverse'); leg = legend('SAL, CW','SAL, VC','DEN','box','off'); set(leg,'FontSize',7,'Location','best'); leg.ItemTokenSize = [30*0.3,18*0.3];
 hXLabel = xlabel('Brine volume'); set([hXLabel gca],'FontSize',8,'FontWeight','normal');
 p = text(0.19,1.4,sprintf('%.2f ± %.2f',mean(vb_S),std(vb_S))); set(p,'Color',c{1},'HorizontalAlignment','right','FontSize',8);
 p = text(0.19,1.5,sprintf('%.2f ± %.2f',mean(vb_rho),std(vb_rho))); set(p,'Color',c{2},'HorizontalAlignment','right','FontSize',8);
@@ -72,9 +75,9 @@ p = text(0.095,1.4,sprintf('%.2f ± %.2f',mean(vg),std(vg))); set(p,'Color',c{1}
 p = text(0.095,1.5,sprintf('%.2f ± %.2f',mean(vg_pr),std(vg_pr))); set(p,'Color',c{2},'HorizontalAlignment','right','FontSize',8);
 
 annotation('textbox',[0.005 .51 0.01 .51],'String','(a)','FontSize',8,'EdgeColor','none','HorizontalAlignment','center');
-annotation('textbox',[0.14 .51 0.15 .51],'String','(b)','FontSize',8,'EdgeColor','none','HorizontalAlignment','center');
-annotation('textbox',[0.272 .51 0.28 .51],'String','(c)','FontSize',8,'EdgeColor','none','HorizontalAlignment','center');
-annotation('textbox',[0.405 .51 0.41 .51],'String','(d)','FontSize',8,'EdgeColor','none','HorizontalAlignment','center');
-annotation('textbox',[0.537 .51 0.54 .51],'String','(e)','FontSize',8,'EdgeColor','none','HorizontalAlignment','center');
+annotation('textbox',[0.144 .51 0.15 .51],'String','(b)','FontSize',8,'EdgeColor','none','HorizontalAlignment','center');
+annotation('textbox',[0.273 .51 0.28 .51],'String','(c)','FontSize',8,'EdgeColor','none','HorizontalAlignment','center');
+annotation('textbox',[0.406 .51 0.41 .51],'String','(d)','FontSize',8,'EdgeColor','none','HorizontalAlignment','center');
+annotation('textbox',[0.534 .51 0.54 .51],'String','(e)','FontSize',8,'EdgeColor','none','HorizontalAlignment','center');
 
 clearvars tile leg hXLabel hYLabel
