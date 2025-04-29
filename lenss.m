@@ -1,3 +1,13 @@
+function p = vb_cw(T,S) % local function calculating brine volume of gas-free sea ice from its temperature and salinity from Cox and Weeks (1983)
+    rho_i = 916.8 - 0.1403*T; % pure ice density, Pounder (1965)
+    F1 = -4.732-22.45*T - 0.6397*T.^2 - 0.01074*T.^3; % Cox and Weeks (1983)
+    F1(T>-2) = -4.1221*10^-2 + -1.8407*10^1*T(T>-2).^1 + 5.8402*10^-1*T(T>-2).^2 + 2.1454*10^-1*T(T>-2).^3; % F1 from Lepparanta and Manninen (1988)
+    F2 = 8.903*10^-2 - 1.763*10^-2*T - 5.33*10^-4*T.^2 - 8.801*10^-6*T.^3; % Cox and Weeks (1983)
+    F2(T>-2) = 9.0312*10^-2 + -1.6111*10^-2*T(T>-2).^1 + 1.2291*10^-4*T(T>-2).^2 + 1.3603*10^-4*T(T>-2).^3; % F2 from Lepparanta and Manninen (1988)
+    rho_si_cox = 1./((F1 - rho_i.*S/1000.*F2)./(rho_i.*F1)); % Cox and Weeks (1983)
+    p = rho_si_cox .* S ./ F1 / 1000; % Cox and Weeks (1983)
+end
+
 close all; clc; clear; load('lenss_st6.mat');
 t(1) = datetime('14-Jan-2020'); lon = 11.4604; lat = -69.6629; % Station 6 time and location
 Srho = gsw_SA_from_SP(SPrho,0,lon,lat); S = gsw_SA_from_SP(SP,0,lon,lat); % absolute/practical salinity coversion from TEOS-10
@@ -61,7 +71,8 @@ p = text(855,1.4,sprintf('%.0f ± %.0f',mean(rho_si),std(rho_si))); set(p,'Color
 p = text(855,1.5,sprintf('%.0f ± %.0f',mean(rho),std(rho))); set(p,'Color',c{2},'HorizontalAlignment','left','FontSize',8);
 
 nexttile
-plot(vb_S,zS,vb_S_van,zS,vb_rho,zrho);
+plot(vb_S,zS,vb_S_van,zS,vb_rho,zrho); hold on
+% plot(vb_cw(T_S,S)+0.01,zS,'k--'); % using vb_cw = vb_cw(T,S);
 set(gca, 'YDir','reverse'); leg = legend('SAL, CW','SAL, VC','DEN','box','off'); set(leg,'FontSize',7,'Location','best'); leg.ItemTokenSize = [30*0.3,18*0.3];
 hXLabel = xlabel('Brine volume'); set([hXLabel gca],'FontSize',8,'FontWeight','normal');
 p = text(0.19,1.4,sprintf('%.2f ± %.2f',mean(vb_S),std(vb_S))); set(p,'Color',c{1},'HorizontalAlignment','right','FontSize',8);
