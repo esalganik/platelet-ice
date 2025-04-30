@@ -44,7 +44,8 @@ F3_rho = rhoi_rho.*Srho/1000./(F1_rho-rhoi_rho.*Srho/1000.*F2_rho);
 vb_rho = vb_pr_rho .* F1_pr_rho ./ F1_rho / 1000; vb_rho(vb_rho > 0.6) = NaN; vb_rho(vb_rho < 0) = NaN;  % Brine volume for T_insitu, CW + LM
 vg = max(0,(1-(1-vg_pr).*(rhoi_rho./rhoi_pr).*(F3_pr.*F1_pr_rho./F3_rho./F1_rho)),'includenan'); % Gas volume for T_insitu, CW + LM
 rho_si = (-vg_pr+1).*rhoi_rho.*F1_rho./(F1_rho-rhoi_rho.*Srho/1000.*F2_rho); rho_si(isnan(vb_rho)) = NaN; rho_si(isnan(vb_rho)) = NaN; % density
-clearvars -except hS hT hrho dS dT drho zT zS zzS zzrho zrho T T_lab T_S S Srho rho rho_si vb_S vb_rho vg vg_pr t event vb_S_van
+rho_si_gf = (1).*rhoi_rho.*F1_rho./(F1_rho-rhoi_rho.*Srho/1000.*F2_rho); rho_si(isnan(vb_rho)) = NaN; rho_si(isnan(vb_rho)) = NaN; % density
+% clearvars -except hS hT hrho dS dT drho zT zS zzS zzrho zrho T T_lab T_S S Srho rho rho_si vb_S vb_rho vg vg_pr t event vb_S_van rho_si_gf
 
 figure
 tile = tiledlayout(1,5); tile.TileSpacing = 'compact'; tile.Padding = 'none';
@@ -71,9 +72,10 @@ p = text(855,1.4,sprintf('%.0f ± %.0f',mean(rho_si),std(rho_si))); set(p,'Color
 p = text(855,1.5,sprintf('%.0f ± %.0f',mean(rho),std(rho))); set(p,'Color',c{2},'HorizontalAlignment','left','FontSize',8);
 
 nexttile
-plot(vb_S,zS,vb_S_van,zS,vb_rho,zrho); hold on
+plot(vb_S,zS,vb_rho,zrho); hold on
 % plot(vb_cw(T_S,S)+0.01,zS,'k--'); % using vb_cw = vb_cw(T,S);
-set(gca, 'YDir','reverse'); leg = legend('SAL, CW','SAL, VC','DEN','box','off'); set(leg,'FontSize',7,'Location','best'); leg.ItemTokenSize = [30*0.3,18*0.3];
+% set(gca, 'YDir','reverse'); leg = legend('SAL, CW','SAL, VC','DEN','box','off'); set(leg,'FontSize',7,'Location','best'); leg.ItemTokenSize = [30*0.3,18*0.3];
+set(gca, 'YDir','reverse'); leg = legend('SAL','DEN','box','off'); set(leg,'FontSize',7,'Location','best'); leg.ItemTokenSize = [30*0.3,18*0.3];
 hXLabel = xlabel('Brine volume'); set([hXLabel gca],'FontSize',8,'FontWeight','normal');
 p = text(0.19,1.4,sprintf('%.2f ± %.2f',mean(vb_S),std(vb_S))); set(p,'Color',c{1},'HorizontalAlignment','right','FontSize',8);
 p = text(0.19,1.5,sprintf('%.2f ± %.2f',mean(vb_rho),std(vb_rho))); set(p,'Color',c{2},'HorizontalAlignment','right','FontSize',8);
