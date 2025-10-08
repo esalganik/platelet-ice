@@ -1,4 +1,6 @@
-Lenss et al. [2024] Incorporated platelet ice layers provide refuge for sea-ice algae in the Kong Håkon VII Hav
+Lenss et al. [2025] Incorporated platelet ice layers provide refuge for sea-ice algae in the Kong Håkon VII Hav 
+Marine Ecology Progress Series
+DOI: https://doi.org/10.3354/meps14979
 
 MATLAB codes are provided to convert density and salinity measured in the laboratory to sea-ice density, brine, and air volume estimates.
 
