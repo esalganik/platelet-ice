@@ -75,6 +75,14 @@ Outputs include:
 
 ---
 
+## Authors
+
+Evgenii Salganik — https://orcid.org/0000-0001-8383-7815  
+Polona Itkin — https://orcid.org/0000-0002-4029-1936  
+Megan Lenss — https://orcid.org/0009-0007-5250-1826
+
+---
+
 ## Citation
 
 If you use this code or dataset, please cite both:
