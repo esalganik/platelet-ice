@@ -8,4 +8,7 @@ Script is using gsw_SA_from_SP code from TEOS-10 avaliable at: https://teos-10.o
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17293310.svg)](https://doi.org/10.5281/zenodo.17293310)
 
+![Quicklook](quicklook.png)
+
+
 
